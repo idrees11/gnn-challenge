@@ -42,4 +42,4 @@ jobs:
     # 🔹 Run your test code
     - name: Run test code
       run: |
-        python test_run.py
+        python test_setup.py
