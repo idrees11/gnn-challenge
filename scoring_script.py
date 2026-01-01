@@ -4,10 +4,18 @@ import sys
 
 # Usage: python scoring_script.py <test_labels.csv> <submission.csv>
 
-truth = pd.read_csv(sys.argv[1])
-submission = pd.read_csv(sys.argv[2])
+if len(sys.argv) != 3:
+    print("Usage: python scoring_script.py <test_labels.csv> <submission.csv>")
+    sys.exit(1)
 
-# Clean column names to remove extra spaces
+truth_file = sys.argv[1]
+submission_file = sys.argv[2]
+
+# Load CSVs
+truth = pd.read_csv(truth_file)
+submission = pd.read_csv(submission_file)
+
+# Clean column names (remove extra spaces)
 truth.columns = truth.columns.str.strip()
 submission.columns = submission.columns.str.strip()
 
