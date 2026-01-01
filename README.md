@@ -120,6 +120,28 @@ How it works:
 3. Macro F1-score is computed
 4. Leaderboard is updated automatically
 Only the **best-performing submissions** appear at the top.
+#----------------------------------------------------------------#
+#                       **Step-by-Step Commands**                #
+#----------------------------------------------------------------# 
+:: 1️⃣ Go to the starter_code folder
+cd starter_code
+:: 2️⃣ Run the baseline to generate submission
+python baseline.py
+:: 3️⃣ Go back to the repo root
+cd ..
+:: 4️⃣ Check that submission exists
+dir submissions
+:: 5️⃣ Score the submission
+python scoring_script.py submissions\sample_submission.csv
+#-------------------------------------------------------------------#
+                        **What Each Step Does:**
+#---------------------------------------------------------------------#
+cd starter_code → enters the folder where baseline.py lives.
+python baseline.py → trains the model and saves the CSV directly into the main submissions folder.
+cd .. → returns to the main repo root.
+dir submissions → verifies the CSV is there (sample_submission.csv).
+python scoring_script.py submissions\sample_submission.csv → runs scoring and prints the F1 score
+#------------------------------------------------------------------------------------#
 **📬 Contact**
 For questions or clarifications, please open a GitHub Issue.
 Good luck — and happy graph learning! 🧠📊
