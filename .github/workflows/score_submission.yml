@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -23,13 +25,26 @@ jobs:
           pip install --upgrade pip
           pip install -r starter_code/requirements.txt
 
-      - name: Identify submission file
-        id: find_submission
+      - name: Find submission file
+        id: submission
         run: |
           FILE=$(ls submissions/*.csv | head -n 1)
-          echo "submission_file=$FILE" >> $GITHUB_OUTPUT
+          echo "file=$FILE" >> $GITHUB_OUTPUT
 
-      - name: Run scoring script
+      - name: Score submission
         run: |
-          python scoring_script.py ${{ steps.find_submission.outputs.submission_file }}
+          python scoring_script.py ${{ steps.submission.outputs.file }}
 
+      - name: Update leaderboard
+        run: |
+          python update_leaderboard.py \
+            ${{ steps.submission.outputs.file }} \
+            ${{ github.actor }}
+
+      - name: Commit leaderboard update
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add leaderboard.md
+          git commit -m "Update leaderboard for ${{ github.actor }}" || echo "No changes"
+          git push
