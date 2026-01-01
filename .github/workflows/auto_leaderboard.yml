@@ -1,0 +1,53 @@
+name: Auto Score & Update Leaderboard
+
+on:
+  pull_request:
+    paths:
+      - 'submissions/*.csv'   # Only trigger if submission CSVs are updated
+
+jobs:
+  score_and_update:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout repo
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2. Set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r starter_code/requirements.txt
+        pip install pandas scikit-learn
+
+    # 4. Run scoring
+    - name: Run scoring
+      run: |
+        # Find the new submission file in PR
+        SUBMISSION=$(ls submissions/*.csv | head -n 1)
+        echo "Scoring submission: $SUBMISSION"
+        python scoring_script.py data/test_labels.csv "$SUBMISSION"
+
+    # 5. Update leaderboard
+    - name: Update leaderboard
+      run: |
+        SUBMISSION=$(ls submissions/*.csv | head -n 1)
+        # You can optionally get the username from PR author
+        USERNAME=$(echo "${{ github.actor }}")
+        python update_leaderboard.py "$SUBMISSION" "$USERNAME"
+
+    # 6. Commit & push updated leaderboard
+    - name: Commit & push leaderboard
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add leaderboard/leaderboard.md
+        git commit -m "Update leaderboard via GitHub Actions [skip ci]" || echo "No changes to commit"
+        git push origin HEAD:${{ github.head_ref }}
