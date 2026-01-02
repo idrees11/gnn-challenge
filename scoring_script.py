@@ -7,7 +7,7 @@ from sklearn.metrics import f1_score
 # CONFIG: PRIVATE DATA PATH
 # ----------------------------
 # Path to private test labels (local only)
-PRIVATE_DATA_FOLDER = r"C:\Users/Idrees Bhat/Desktop/GNNs/Basira/Islem/private_data"  # <-- change to your path
+PRIVATE_DATA_FOLDER = r"C:/Users/Idrees Bhat/Desktop/GNNs/Basira/Islem/private_data"  # <-- change to your path
 PRIVATE_LABEL_FILE = os.path.join(PRIVATE_DATA_FOLDER, "test_labels.csv")
 
 # Path to participant submissions folder
