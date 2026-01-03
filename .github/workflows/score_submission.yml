@@ -1,44 +1,51 @@
-name: Auto Score Submission
+name: Auto Score & Update Leaderboard
 
 on:
   pull_request:
     paths:
-      - "submissions/*.csv"
+      - 'submissions/*.csv'   # Trigger only when submission CSVs change
 
 jobs:
-  score:
+  score_and_update:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          persist-credentials: true
 
+      # 2. Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r starter_code/requirements.txt
+          pip install pandas scikit-learn
 
-      - name: Score submissions
+      # 4. Run scoring (uses private labels from GitHub Secret)
+      - name: Run scoring
         env:
-          PRIVATE_TEST_LABELS: ${{ secrets.TEST_LABELS }}
+          TEST_LABELS: ${{ secrets.TEST_LABELS }}
         run: |
+          echo "DEBUG: Running scoring using private labels from secret"
           python scoring_script.py
 
+      # 5. Update leaderboard
       - name: Update leaderboard
         run: |
-          python update_leaderboard.py ${{ github.actor }}
+          USERNAME="${{ github.actor }}"
+          python update_leaderboard.py "$USERNAME"
 
-      - name: Commit leaderboard update
+      # 6. Commit & push updated leaderboard
+      - name: Commit & push leaderboard
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add leaderboard.md
-          git commit -m "Update leaderboard for ${{ github.actor }}" || echo "No changes"
-          git push
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add leaderboard/leaderboard.md
+          git commit -m "Update leaderboard via GitHub Actions [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:${{ github.head_ref }}
