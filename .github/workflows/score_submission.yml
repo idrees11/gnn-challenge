@@ -37,7 +37,7 @@ jobs:
       # 5️⃣ Write TEST_LABELS secret to a CSV file
       - name: Write TEST_LABELS file from secret
         run: |
-          echo "${{ secrets.TEST_LABELS }}" > private_labels.csv
+          PRINTF "%s" "${{ secrets.TEST_LABELS }}" > private_labels.csv
 
       # 6️⃣ Run scoring script
       - name: Run scoring script
