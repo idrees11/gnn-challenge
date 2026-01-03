@@ -3,7 +3,7 @@ name: Score Submissions
 on:
   pull_request:
     branches:
-      - main  # Only score PRs to the main branch
+      - main  # Score PRs to main branch
   push:
     branches:
       - main  # Optional: score submissions pushed directly
@@ -13,43 +13,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
+      # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Set up Python
+      # 2️⃣ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
-      # 3. Install dependencies
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pandas scikit-learn
 
-      # 4. Find new submission CSV
-      - name: Find submission
-        id: submission
-        run: |
-          mkdir -p submissions  # Ensure folder exists
-          SUBMISSION=$(ls submissions/*.csv 2>/dev/null | head -n 1 || echo "")
-          if [ -z "$SUBMISSION" ]; then
-            echo "No submission CSV found"
-            exit 1
-          fi
-          echo "Submission file: $SUBMISSION"
-          echo "submission=$SUBMISSION" >> $GITHUB_OUTPUT
+      # 4️⃣ Ensure submissions folder exists
+      - name: Ensure submissions folder
+        run: mkdir -p submissions
 
-      # 5. Run scoring script
+      # 5️⃣ Run scoring script
       - name: Run scoring script
         env:
-          TEST_LABELS: ${{ secrets.TEST_LABELS }}  # Private labels
-        run: |
-          python scoring_script.py
+          TEST_LABELS: ${{ secrets.TEST_LABELS || '' }}  # Secret with private labels
+        run: python scoring_script.py
 
-      # 6. Upload leaderboard artifact (optional)
+      # 6️⃣ Upload leaderboard
       - name: Upload leaderboard
         if: always()
         uses: actions/upload-artifact@v4
