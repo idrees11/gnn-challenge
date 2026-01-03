@@ -44,8 +44,9 @@ jobs:
 
       # 5. Run scoring script
       - name: Run scoring script
+        # Always define TEST_LABELS, even if secret is missing
         env:
-          TEST_LABELS: ${{ secrets.TEST_LABELS }}  # Private labels
+          TEST_LABELS: ${{ secrets.TEST_LABELS || '' }}
         run: |
           python scoring_script.py
 
