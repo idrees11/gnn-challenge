@@ -5,6 +5,9 @@ import sys
 
 print("Running scoring_script.py from:", sys.argv[0])
 
+# ----------------------------
+# CONFIG
+# ----------------------------
 PRIVATE_LABELS_ENV = "TEST_LABELS"
 SUBMISSIONS_FOLDER = "submissions"
 LEADERBOARD_FILE = "leaderboard.csv"
@@ -12,29 +15,28 @@ LEADERBOARD_FILE = "leaderboard.csv"
 # ----------------------------
 # Load private labels
 # ----------------------------
-private_labels = os.getenv(PRIVATE_LABELS_ENV)
+private_labels = os.getenv(PRIVATE_LABELS_ENV, "")
 
 truth = None
 
 if private_labels:
-    if os.path.exists(private_labels):
-        # Secret contains path to CSV
-        truth = pd.read_csv(private_labels)
-        print(f"Loaded private labels from file: {private_labels}")
-    else:
-        try:
-            # Secret contains CSV content
-            import io
-            truth = pd.read_csv(io.StringIO(private_labels))
-            print("Loaded private labels from CSV content in secret.")
-        except Exception as e:
-            print("Failed to load private labels from secret content:", e)
+    try:
+        # Try reading as CSV content (for secrets)
+        import io
+        truth = pd.read_csv(io.StringIO(private_labels))
+        print("Loaded private labels from secret.")
+    except Exception:
+        # If fails, maybe secret is a file path
+        if os.path.exists(private_labels):
+            truth = pd.read_csv(private_labels)
+            print(f"Loaded private labels from file path: {private_labels}")
+        else:
             truth = None
 
 if truth is None:
     print(
         f"WARNING: Private labels not found. Tried env '{PRIVATE_LABELS_ENV}'. "
-        "Scoring will be skipped (expected for participants)."
+        "Scoring will be skipped (expected for participant forks)."
     )
 
 # ----------------------------
@@ -43,7 +45,7 @@ if truth is None:
 truth_col = None
 if truth is not None:
     truth.columns = truth.columns.str.strip()
-    for col in ['label', 'target']:
+    for col in ["label", "target"]:
         if col in truth.columns:
             truth_col = col
             break
@@ -65,8 +67,9 @@ else:
             submission = pd.read_csv(submission_path)
             submission.columns = submission.columns.str.strip()
 
+            # Detect label column
             submission_col = None
-            for col in ['label', 'target']:
+            for col in ["label", "target"]:
                 if col in submission.columns:
                     submission_col = col
                     break
@@ -86,7 +89,7 @@ else:
                 print(f"{fname} -> F1 Score: {score:.4f}")
                 scores.append({"submission": fname, "f1_score": score})
             else:
-                # Participant local run or missing secret
+                # Participant fork / local run: skip scoring
                 print(f"Found submission (skipping scoring): {fname}")
                 scores.append({"submission": fname, "f1_score": None})
 
