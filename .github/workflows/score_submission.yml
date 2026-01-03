@@ -37,7 +37,7 @@ jobs:
       # 5️⃣ Write TEST_LABELS secret to a CSV file
       - name: Write TEST_LABELS file from secret
         run: |
-          PRINTF "%s" "${{ secrets.TEST_LABELS }}" > private_labels.csv
+          printf "%s" "${{ secrets.TEST_LABELS }}" > private_labels.csv
 
 
       - name: Debug TEST_LABELS file
