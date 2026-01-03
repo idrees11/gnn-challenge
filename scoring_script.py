@@ -6,7 +6,7 @@ from sklearn.metrics import f1_score
 # ----------------------------
 # CONFIG
 # ----------------------------
-
+print("Running scoring_script.py from:", sys.argv[0])
 # Environment variable containing private labels CSV (for GitHub Actions)
 PRIVATE_LABELS_ENV = "TEST_LABELS"
 
